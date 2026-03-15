@@ -233,6 +233,34 @@ container.appendChild(card);
 
 }
 
+async function loadRandomCocktails(){
+
+const container=document.getElementById("container");
+container.innerHTML="";
+
+document.getElementById("loading").style.display="block";
+
+let drinksMap=new Map();
+
+while(drinksMap.size<10){
+
+let res=await fetch("https://www.thecocktaildb.com/api/json/v1/1/random.php");
+let data=await res.json();
+
+let drink=data.drinks[0];
+
+drinksMap.set(drink.idDrink,drink);
+
+}
+
+document.getElementById("loading").style.display="none";
+
+drinksMap.forEach(drink=>{
+createCard(drink);
+});
+
+}
+
 function loadCocktails(){
 
 const search=document.getElementById("search").value;
@@ -240,22 +268,12 @@ const search=document.getElementById("search").value;
 const container=document.getElementById("container");
 container.innerHTML="";
 
-document.getElementById("loading").style.display="block";
-
 if(search===""){
-
-for(let i=0;i<10;i++){
-
-fetch("https://www.thecocktaildb.com/api/json/v1/1/random.php")
-.then(res=>res.json())
-.then(data=>{
-createCard(data.drinks[0]);
-document.getElementById("loading").style.display="none";
-});
-
+loadRandomCocktails();
+return;
 }
 
-}else{
+document.getElementById("loading").style.display="block";
 
 fetch("https://www.thecocktaildb.com/api/json/v1/1/search.php?s="+search)
 .then(res=>res.json())
@@ -273,8 +291,6 @@ createCard(drink);
 });
 
 });
-
-}
 
 }
 
@@ -316,7 +332,7 @@ loadCocktails();
 }
 });
 
-loadCocktails();
+loadRandomCocktails();
 
 for(let i=0;i<40;i++){
 
