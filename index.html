@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Neon Cocktail Lounge</title>
+<title>Ultimate Neon Cocktail Lounge</title>
 
 <style>
 
@@ -11,9 +11,10 @@ margin:0;
 font-family:Segoe UI, Arial;
 background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
 background-size:400% 400%;
-animation:bg 10s infinite alternate;
+animation:bg 12s infinite alternate;
 color:white;
 text-align:center;
+overflow-x:hidden;
 }
 
 @keyframes bg{
@@ -22,7 +23,7 @@ text-align:center;
 }
 
 h1{
-font-size:40px;
+font-size:42px;
 background:linear-gradient(90deg,#ff00cc,#00ffff);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
@@ -35,7 +36,7 @@ border:none;
 }
 
 button{
-padding:10px 15px;
+padding:8px 14px;
 border:none;
 border-radius:8px;
 cursor:pointer;
@@ -52,13 +53,13 @@ padding:20px;
 }
 
 .card{
+position:relative;
 background:rgba(255,255,255,0.08);
 backdrop-filter:blur(12px);
 border-radius:16px;
 padding:15px;
 width:200px;
 transition:0.4s;
-position:relative;
 }
 
 .card:hover{
@@ -68,6 +69,8 @@ box-shadow:0 0 20px rgba(0,255,255,0.6);
 
 .card img{
 width:100%;
+height:150px;
+object-fit:cover;
 border-radius:12px;
 }
 
@@ -77,6 +80,12 @@ top:10px;
 right:10px;
 cursor:pointer;
 font-size:20px;
+}
+
+.rating{
+cursor:pointer;
+font-size:18px;
+color:gold;
 }
 
 .modal{
@@ -99,9 +108,24 @@ max-width:500px;
 }
 
 .close{
+float:right;
 cursor:pointer;
 font-size:24px;
-float:right;
+}
+
+.particle{
+position:fixed;
+width:4px;
+height:4px;
+background:#00ffff;
+border-radius:50%;
+animation:float 10s linear infinite;
+opacity:0.6;
+}
+
+@keyframes float{
+from{transform:translateY(100vh);}
+to{transform:translateY(-10vh);}
 }
 
 </style>
@@ -109,7 +133,7 @@ float:right;
 
 <body>
 
-<h1>🍹 Neon Cocktail Lounge</h1>
+<h1>🍹 Ultimate Neon Cocktail Lounge</h1>
 
 <input id="search" placeholder="Search cocktail">
 <button onclick="loadCocktails()">Search</button>
@@ -120,7 +144,7 @@ float:right;
 <div class="modal-content">
 <span class="close" onclick="closeModal()">×</span>
 <h2 id="modalTitle"></h2>
-<img id="modalImg" width="200">
+<img id="modalImg" style="width:200px;border-radius:12px">
 <p id="modalText"></p>
 </div>
 </div>
@@ -150,13 +174,47 @@ card.className="card";
 
 const fav=document.createElement("div");
 fav.className="fav";
-fav.innerHTML="♡";
+
+let favs=JSON.parse(localStorage.getItem("favs")||"[]");
+fav.innerHTML=favs.includes(drink.idDrink)?"❤️":"♡";
+
+fav.onclick=function(){
+
+let favs=JSON.parse(localStorage.getItem("favs")||"[]");
+
+if(favs.includes(drink.idDrink)){
+favs=favs.filter(f=>f!==drink.idDrink);
+}else{
+favs.push(drink.idDrink);
+}
+
+localStorage.setItem("favs",JSON.stringify(favs));
+loadCocktails();
+
+};
 
 const title=document.createElement("h3");
 title.textContent=drink.strDrink;
 
 const img=document.createElement("img");
 img.src=drink.strDrinkThumb;
+
+const rating=document.createElement("div");
+rating.className="rating";
+
+let saved=localStorage.getItem("rating_"+drink.idDrink);
+rating.innerHTML=saved?saved:"☆☆☆☆☆";
+
+rating.onclick=function(e){
+
+let rect=this.getBoundingClientRect();
+let stars=Math.ceil((e.clientX-rect.left)/rect.width*5);
+let value="★★★★★".slice(0,stars)+"☆☆☆☆☆".slice(0,5-stars);
+
+this.innerHTML=value;
+localStorage.setItem("rating_"+drink.idDrink,value);
+
+};
 
 const btn=document.createElement("button");
 btn.textContent="View";
@@ -168,6 +226,7 @@ openModal(drink);
 card.appendChild(fav);
 card.appendChild(img);
 card.appendChild(title);
+card.appendChild(rating);
 card.appendChild(btn);
 
 container.appendChild(card);
@@ -190,6 +249,18 @@ document.getElementById("modal").style.display="block";
 
 function closeModal(){
 document.getElementById("modal").style.display="none";
+}
+
+for(let i=0;i<40;i++){
+
+let p=document.createElement("div");
+p.className="particle";
+
+p.style.left=Math.random()*100+"vw";
+p.style.animationDuration=(5+Math.random()*10)+"s";
+
+document.body.appendChild(p);
+
 }
 
 </script>
