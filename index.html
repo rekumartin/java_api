@@ -2,60 +2,106 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Cocktail Finder</title>
+<title>Neon Cocktail Lounge</title>
 
 <style>
 
 body{
-    font-family: Arial;
-    background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
-    color:white;
-    text-align:center;
+margin:0;
+font-family:Segoe UI, Arial;
+background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+background-size:400% 400%;
+animation:bg 10s infinite alternate;
+color:white;
+text-align:center;
+}
+
+@keyframes bg{
+0%{background-position:0% 50%;}
+100%{background-position:100% 50%;}
 }
 
 h1{
-    font-size:40px;
-}
-
-#container{
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:20px;
-    padding:20px;
-}
-
-.card{
-    background:rgba(255,255,255,0.1);
-    border-radius:15px;
-    width:200px;
-    padding:15px;
-    backdrop-filter:blur(10px);
-    transition:0.3s;
-}
-
-.card:hover{
-    transform:scale(1.05);
-}
-
-.card img{
-    width:100%;
-    border-radius:10px;
+font-size:40px;
+background:linear-gradient(90deg,#ff00cc,#00ffff);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
 }
 
 input{
-    padding:10px;
-    border-radius:8px;
-    border:none;
+padding:10px;
+border-radius:8px;
+border:none;
 }
 
 button{
-    padding:10px 15px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    background:#ff00cc;
-    color:white;
+padding:10px 15px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+background:linear-gradient(90deg,#ff00cc,#00ffff);
+color:white;
+}
+
+.container{
+display:flex;
+flex-wrap:wrap;
+gap:20px;
+justify-content:center;
+padding:20px;
+}
+
+.card{
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(12px);
+border-radius:16px;
+padding:15px;
+width:200px;
+transition:0.4s;
+position:relative;
+}
+
+.card:hover{
+transform:translateY(-6px);
+box-shadow:0 0 20px rgba(0,255,255,0.6);
+}
+
+.card img{
+width:100%;
+border-radius:12px;
+}
+
+.fav{
+position:absolute;
+top:10px;
+right:10px;
+cursor:pointer;
+font-size:20px;
+}
+
+.modal{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.8);
+}
+
+.modal-content{
+background:#111;
+margin:10% auto;
+padding:20px;
+border-radius:16px;
+width:80%;
+max-width:500px;
+}
+
+.close{
+cursor:pointer;
+font-size:24px;
+float:right;
 }
 
 </style>
@@ -63,64 +109,87 @@ button{
 
 <body>
 
-<h1>🍹 Cocktail Finder</h1>
+<h1>🍹 Neon Cocktail Lounge</h1>
 
 <input id="search" placeholder="Search cocktail">
 <button onclick="loadCocktails()">Search</button>
 
-<div id="container"></div>
+<div class="container" id="container"></div>
+
+<div id="modal" class="modal">
+<div class="modal-content">
+<span class="close" onclick="closeModal()">×</span>
+<h2 id="modalTitle"></h2>
+<img id="modalImg" width="200">
+<p id="modalText"></p>
+</div>
+</div>
 
 <script>
 
 function loadCocktails(){
 
-    const search = document.getElementById("search").value;
+const search=document.getElementById("search").value;
 
-    fetch("https://www.thecocktaildb.com/api/json/v1/1/search.php?s=" + search)
-    .then(response => response.json())
-    .then(data => {
+fetch("https://www.thecocktaildb.com/api/json/v1/1/search.php?s="+search)
+.then(res=>res.json())
+.then(data=>{
 
-        const container = document.getElementById("container");
-        container.innerHTML = "";
+const container=document.getElementById("container");
+container.innerHTML="";
 
-        if(!data.drinks){
-            container.innerHTML = "<h3>No cocktails found</h3>";
-            return;
-        }
+if(!data.drinks){
+container.innerHTML="<h3>No cocktails found</h3>";
+return;
+}
 
-        data.drinks.forEach(drink => {
+data.drinks.forEach(drink=>{
 
-            // vytvorenie card
-            const card = document.createElement("div");
-            card.className = "card";
+const card=document.createElement("div");
+card.className="card";
 
-            // názov
-            const title = document.createElement("h3");
-            title.textContent = drink.strDrink;
+const fav=document.createElement("div");
+fav.className="fav";
+fav.innerHTML="♡";
 
-            // obrázok
-            const img = document.createElement("img");
-            img.src = drink.strDrinkThumb;
+const title=document.createElement("h3");
+title.textContent=drink.strDrink;
 
-            // tlačidlo
-            const button = document.createElement("button");
-            button.textContent = "Show instructions";
+const img=document.createElement("img");
+img.src=drink.strDrinkThumb;
 
-            button.onclick = function(){
-                alert(drink.strInstructions);
-            };
+const btn=document.createElement("button");
+btn.textContent="View";
 
-            // appendChild
-            card.appendChild(title);
-            card.appendChild(img);
-            card.appendChild(button);
+btn.onclick=function(){
+openModal(drink);
+};
 
-            container.appendChild(card);
+card.appendChild(fav);
+card.appendChild(img);
+card.appendChild(title);
+card.appendChild(btn);
 
-        });
+container.appendChild(card);
 
-    });
+});
 
+});
+
+}
+
+function openModal(drink){
+
+document.getElementById("modalTitle").textContent=drink.strDrink;
+document.getElementById("modalImg").src=drink.strDrinkThumb;
+document.getElementById("modalText").textContent=drink.strInstructions;
+
+document.getElementById("modal").style.display="block";
+
+}
+
+function closeModal(){
+document.getElementById("modal").style.display="none";
 }
 
 </script>
