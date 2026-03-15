@@ -44,6 +44,7 @@ border-radius:8px;
 cursor:pointer;
 background:linear-gradient(90deg,#ff00cc,#00ffff);
 color:white;
+margin:4px;
 }
 
 #loading{
@@ -147,6 +148,7 @@ to{transform:translateY(-10vh);}
 
 <input id="search" placeholder="Search cocktail">
 <button onclick="loadCocktails()">Search</button>
+<button onclick="randomCocktail()">Random Cocktail</button>
 
 <div id="loading">Loading cocktails...</div>
 
@@ -242,7 +244,6 @@ document.getElementById("loading").style.display="block";
 
 if(search===""){
 
-// načíta 10 random drinkov
 for(let i=0;i<10;i++){
 
 fetch("https://www.thecocktaildb.com/api/json/v1/1/random.php")
@@ -277,6 +278,24 @@ createCard(drink);
 
 }
 
+function randomCocktail(){
+
+const container=document.getElementById("container");
+container.innerHTML="";
+
+document.getElementById("loading").style.display="block";
+
+fetch("https://www.thecocktaildb.com/api/json/v1/1/random.php")
+.then(res=>res.json())
+.then(data=>{
+
+document.getElementById("loading").style.display="none";
+createCard(data.drinks[0]);
+
+});
+
+}
+
 function openModal(drink){
 
 document.getElementById("modalTitle").textContent=drink.strDrink;
@@ -297,10 +316,8 @@ loadCocktails();
 }
 });
 
-// načíta drinky pri otvorení stránky
 loadCocktails();
 
-// particles
 for(let i=0;i<40;i++){
 
 let p=document.createElement("div");
