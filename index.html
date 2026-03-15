@@ -163,27 +163,9 @@ to{transform:translateY(-10vh);}
 
 <script>
 
-function loadCocktails(){
-
-const search=document.getElementById("search").value || "margarita";
-
-document.getElementById("loading").style.display="block";
-
-fetch("https://www.thecocktaildb.com/api/json/v1/1/search.php?s="+search)
-.then(res=>res.json())
-.then(data=>{
-
-document.getElementById("loading").style.display="none";
+function createCard(drink){
 
 const container=document.getElementById("container");
-container.innerHTML="";
-
-if(!data.drinks){
-container.innerHTML="<h3>No cocktails found</h3>";
-return;
-}
-
-data.drinks.forEach(drink=>{
 
 const card=document.createElement("div");
 card.className="card";
@@ -205,7 +187,7 @@ favs.push(drink.idDrink);
 }
 
 localStorage.setItem("favs",JSON.stringify(favs));
-loadCocktails();
+location.reload();
 
 };
 
@@ -247,9 +229,51 @@ card.appendChild(btn);
 
 container.appendChild(card);
 
+}
+
+function loadCocktails(){
+
+const search=document.getElementById("search").value;
+
+const container=document.getElementById("container");
+container.innerHTML="";
+
+document.getElementById("loading").style.display="block";
+
+if(search===""){
+
+// načíta 10 random drinkov
+for(let i=0;i<10;i++){
+
+fetch("https://www.thecocktaildb.com/api/json/v1/1/random.php")
+.then(res=>res.json())
+.then(data=>{
+createCard(data.drinks[0]);
+document.getElementById("loading").style.display="none";
+});
+
+}
+
+}else{
+
+fetch("https://www.thecocktaildb.com/api/json/v1/1/search.php?s="+search)
+.then(res=>res.json())
+.then(data=>{
+
+document.getElementById("loading").style.display="none";
+
+if(!data.drinks){
+container.innerHTML="<h3>No cocktails found</h3>";
+return;
+}
+
+data.drinks.forEach(drink=>{
+createCard(drink);
 });
 
 });
+
+}
 
 }
 
@@ -273,8 +297,10 @@ loadCocktails();
 }
 });
 
+// načíta drinky pri otvorení stránky
 loadCocktails();
 
+// particles
 for(let i=0;i<40;i++){
 
 let p=document.createElement("div");
