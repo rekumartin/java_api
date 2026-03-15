@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Cocktail Finder</title>
+
+<style>
+
+body{
+    font-family: Arial;
+    background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+    color:white;
+    text-align:center;
+}
+
+h1{
+    font-size:40px;
+}
+
+#container{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:20px;
+    padding:20px;
+}
+
+.card{
+    background:rgba(255,255,255,0.1);
+    border-radius:15px;
+    width:200px;
+    padding:15px;
+    backdrop-filter:blur(10px);
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:scale(1.05);
+}
+
+.card img{
+    width:100%;
+    border-radius:10px;
+}
+
+input{
+    padding:10px;
+    border-radius:8px;
+    border:none;
+}
+
+button{
+    padding:10px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ff00cc;
+    color:white;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🍹 Cocktail Finder</h1>
+
+<input id="search" placeholder="Search cocktail">
+<button onclick="loadCocktails()">Search</button>
+
+<div id="container"></div>
+
+<script>
+
+function loadCocktails(){
+
+    const search = document.getElementById("search").value;
+
+    fetch("https://www.thecocktaildb.com/api/json/v1/1/search.php?s=" + search)
+    .then(response => response.json())
+    .then(data => {
+
+        const container = document.getElementById("container");
+        container.innerHTML = "";
+
+        if(!data.drinks){
+            container.innerHTML = "<h3>No cocktails found</h3>";
+            return;
+        }
+
+        data.drinks.forEach(drink => {
+
+            // vytvorenie card
+            const card = document.createElement("div");
+            card.className = "card";
+
+            // názov
+            const title = document.createElement("h3");
+            title.textContent = drink.strDrink;
+
+            // obrázok
+            const img = document.createElement("img");
+            img.src = drink.strDrinkThumb;
+
+            // tlačidlo
+            const button = document.createElement("button");
+            button.textContent = "Show instructions";
+
+            button.onclick = function(){
+                alert(drink.strInstructions);
+            };
+
+            // appendChild
+            card.appendChild(title);
+            card.appendChild(img);
+            card.appendChild(button);
+
+            container.appendChild(card);
+
+        });
+
+    });
+
+}
+
+</script>
+
+</body>
+</html>
